@@ -1,0 +1,12 @@
+services:
+  db:
+    image: "postgres:16"
+    container_name: zoula_air_db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: user_zoula
+      POSTGRES_PASSWORD: password_zoula
+      POSTGRES_DB: zoula_db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
