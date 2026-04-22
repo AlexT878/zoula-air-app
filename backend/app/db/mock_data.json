@@ -1,15 +1,15 @@
 {
   "test_users": [
     {
-      "email": "user1@test.com",
+      "email": "ion.popescu@test.com",
       "full_name": "Ion Popescu",
-      "password": "UserPassword123!",
+      "password": "IonPopescu1997!",
       "roles": ["user"]
     },
     {
-      "email": "user2@test.com",
+      "email": "elena.radu@test.com",
       "full_name": "Elena Radu",
-      "password": "UserPassword123!",
+      "password": "ElenaRadu99!",
       "roles": ["user"]
     }
   ]

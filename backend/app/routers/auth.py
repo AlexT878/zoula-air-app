@@ -30,7 +30,7 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
             status_code=400,
             detail={
                 "code": ErrorCode.EMAIL_ALREADY_EXISTS,
-                "message": "A user with this email already exists.",
+                "message": ErrorCode.EMAIL_ALREADY_EXISTS_MESSAGE,
             },
         )
 
@@ -59,12 +59,12 @@ async def login_for_access_token(
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail=ErrorCode.INCORRECT_LOGIN,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail=ErrorCode.INACTIVE_USER)
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -88,13 +88,15 @@ async def refresh_access_token(
     try:
         payload = decode_token(refresh_token)
         if payload.get("token_type") != "refresh":
-            raise HTTPException(status_code=403, detail="Invalid token type")
+            raise HTTPException(status_code=403, detail=ErrorCode.TOKEN_INVALID_TYPE)
 
         user_id = payload.get("sub")
         user = db.query(UserModel).filter(UserModel.id == user_id).first()
 
         if not user or not user.is_active:
-            raise HTTPException(status_code=401, detail="User not found or inactive")
+            raise HTTPException(
+                status_code=401, detail=ErrorCode.USER_NOT_FOUND_INACTIVE_MESSAGE
+            )
 
         access_token = create_access_token(subject=str(user.id), roles=user.roles)
         return {
@@ -103,4 +105,4 @@ async def refresh_access_token(
             "token_type": "bearer",
         }
     except (JWTError, ValidationError):
-        raise HTTPException(status_code=403, detail="Could not validate credentials")
+        raise HTTPException(status_code=403, detail=ErrorCode.TOKEN_INVALID_CREDENTIALS)

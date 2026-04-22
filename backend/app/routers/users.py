@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.auth.jwt_bearer import get_current_user, get_current_user_with_roles
+from app.core.errors import ErrorCode
 from app.schemas.user import User as UserSchema
 from app.models.users import User as UserModel
 from app.db.session import get_db
@@ -18,7 +19,8 @@ async def read_users_me(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found in database"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorCode.USER_NOT_FOUND_MESSAGE,
         )
     return user
 

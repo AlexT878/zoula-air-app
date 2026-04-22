@@ -40,7 +40,6 @@ async def seed_data():
                         is_active=True,
                     )
                     db.add(new_user)
-                    print(f"➕ Added mock user: {u['email']}")
 
         db.commit()
         print("🚀 Database seeding complete!")

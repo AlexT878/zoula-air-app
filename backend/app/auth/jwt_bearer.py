@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import List, Optional, Callable
+from csv import Error
+from typing import List, Callable
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from app.auth.jwt_handler import decode_token
 from app.core.config import settings
 from app.schemas.token import TokenPayload
+from app.core.errors import ErrorCode
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
@@ -21,20 +22,20 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
         if token_data.sub is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token is missing subject (user ID)",
+                detail=ErrorCode.TOKEN_MISSING_SUBJECT,
             )
         return token_data.sub
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
+            detail=ErrorCode.TOKEN_EXPIRED,
             headers={"WWW-Authenticate": "Bearer"},
         )
     except (JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
+            detail=ErrorCode.TOKEN_INVALID_CREDENTIALS,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -56,18 +57,18 @@ def get_current_user_with_roles(required_roles: List[str]) -> Callable:
             if not any(role in user_roles for role in required_roles):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Missing required roles: {required_roles}",
+                    detail=f"{ErrorCode.TOKEN_NO_ROLES} {required_roles}",
                 )
 
             return token_data.sub
 
         except jwt.ExpiredSignatureError:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail=ErrorCode.TOKEN_EXPIRED
             )
         except (JWTError, ValidationError):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token"
+                status_code=status.HTTP_403_FORBIDDEN, detail=ErrorCode.TOKEN_INVALID
             )
 
     return _role_checker
