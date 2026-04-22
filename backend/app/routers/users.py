@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.auth.jwt_bearer import get_current_user, get_current_user_with_roles
-from app.models.user import User as UserSchema
-from app.db.users import User as UserModel
+from app.schemas.user import User as UserSchema
+from app.models.users import User as UserModel
 from app.db.session import get_db
 
 router = APIRouter(prefix="/users", tags=["users"])

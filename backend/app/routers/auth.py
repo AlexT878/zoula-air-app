@@ -10,10 +10,12 @@ from pydantic import ValidationError
 from app.auth.jwt_handler import create_access_token, create_refresh_token, decode_token
 from app.auth.utils import verify_password, get_password_hash
 from app.core.config import settings
-from app.models.token import Token
-from app.models.user import UserCreate, User as UserSchema
-from app.db.users import User as UserModel
+from app.schemas.token import Token
+from app.schemas.user import UserCreate, User as UserSchema
+from app.models.users import User as UserModel
 from app.db.session import get_db
+
+from app.core.errors import ErrorCode
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -25,7 +27,11 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     user_exists = db.query(UserModel).filter(UserModel.email == user_in.email).first()
     if user_exists:
         raise HTTPException(
-            status_code=400, detail="A user with this email already exists."
+            status_code=400,
+            detail={
+                "code": ErrorCode.EMAIL_ALREADY_EXISTS,
+                "message": "A user with this email already exists.",
+            },
         )
 
     hashed_password = get_password_hash(user_in.password)

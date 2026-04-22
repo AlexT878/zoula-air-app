@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from app.auth.jwt_handler import decode_token
 from app.core.config import settings
-from app.models.token import TokenPayload
+from app.schemas.token import TokenPayload
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

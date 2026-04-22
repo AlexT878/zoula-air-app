@@ -2,11 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import auth, users
-from app.db.base import Base
-from app.db.session import engine
 from app.core.lifespan import lifespan
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Zoula Air API", version="1.0.0", lifespan=lifespan)
 
