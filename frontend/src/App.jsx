@@ -1,11 +1,14 @@
-import { Button } from "./components/ui/button";
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./components/layout/MainLayout";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <>
-      <h1>Zoula Air</h1>
-      <Button> Test button </Button>
-    </>
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
+      </Route>
+    </Routes>
   );
 }
 
