@@ -22,9 +22,18 @@ export const styles = {
   inputSplitLeft: cn(
     baseInput,
     focusStyles,
-    "rounded-r-none border-r-0 focus-visible:border-r",
+    "rounded-r-none border-r-0",
+    "relative",
+    "[clip-path:inset(-20px_0px_-20px_-20px)]",
   ),
-  inputSplitRight: cn(baseInput, focusStyles, "rounded-l-none pl-4"),
+
+  inputSplitRight: cn(
+    baseInput,
+    focusStyles,
+    "rounded-l-none",
+    "relative",
+    "[clip-path:inset(-20px_-20px_-20px_0px)]",
+  ),
 
   submitBtn: "w-full h-14 px-24 text-lg font-bold shadow-lg shadow-primary/30",
 };

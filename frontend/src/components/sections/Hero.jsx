@@ -1,5 +1,5 @@
 import { UI_TEXT } from "@/constants/text";
-import SearchForm from "./SearchForm";
+import SearchForm from "./SearchForm/SearchForm";
 
 export function Hero() {
   const { hero } = UI_TEXT;
