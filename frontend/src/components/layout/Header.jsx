@@ -27,11 +27,12 @@ export default function Header() {
           ))}
         </ul>
 
-        <Link to="/login">
-          <Button variant="secondary" className="font-semibold px-6">
-            {header.signIn}
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className="cursor-pointer text-white hover:text-white/70 hover:bg-transparent transition-colors tracking-wide font-medium text-base p-0 h-auto"
+        >
+          {header.signIn}
+        </Button>
       </nav>
     </header>
   );
