@@ -55,10 +55,10 @@ export default function PassengerPicker({ control, label }) {
     const { adults, youngAdults, children, infants } = counts;
     const othersCount = youngAdults + children + infants;
 
-    let labelText = `${adults} ${adults !== 1 ? passengerTerms.adult_singular : passengerTerms.adult_plural}`;
+    let labelText = `${adults} ${adults === 1 ? passengerTerms.adult_singular : passengerTerms.adult_plural}`;
 
     if (othersCount > 0) {
-      labelText += `, ${othersCount} ${othersCount !== 1 ? passengerTerms.other_singular : passengerTerms.other_plural}`;
+      labelText += `, ${othersCount} ${othersCount === 1 ? passengerTerms.other_singular : passengerTerms.other_plural}`;
     }
 
     return labelText;

@@ -42,7 +42,7 @@ export const UI_TEXT = {
           adult_plural: "Adults",
           other_singular: "Other",
           other_plural: "Others",
-          young_adults: "Young adults",
+          young_adults: "Teens",
           children: "Children",
           infant: "Infants",
           years16: "16+ years",

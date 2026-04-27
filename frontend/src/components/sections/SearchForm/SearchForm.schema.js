@@ -12,6 +12,6 @@ export const searchFormSchema = z.object({
     .min(1, alerts.no_arrival_city)
     .max(32, alerts.max_arrival_city),
   departureDate: z.string().min(1, alerts.no_date),
-  returnDate: z.string().min(1, ""),
+  returnDate: z.string().min(1, alerts.no_date),
   passengers: z.string().min(1, alerts.no_passangers),
 });

@@ -23,15 +23,19 @@ export default function DatePickerInput({ control, label, placeholders }) {
 
                 <div
                   className={cn(
-                    "flex -space-x-px rounded-md",
-                    hasError && "ring-3 ring-destructive/20",
+                    "flex -space-x-px rounded-md isolate transition-shadow duration-200",
+                    hasError && "ring-2 ring-destructive/20 z-10",
                   )}
                 >
                   <Input
                     {...field}
                     id="departure"
                     placeholder={placeholders.departure}
-                    className={styles.inputSplitLeft}
+                    className={cn(
+                      styles.inputSplitLeft,
+                      hasError &&
+                        "border-destructive z-10 focus-visible:ring-0 focus-visible:border-destructive",
+                    )}
                     startIcon={Calendar}
                     aria-invalid={fieldState.invalid}
                   />
@@ -39,7 +43,11 @@ export default function DatePickerInput({ control, label, placeholders }) {
                     {...returnField}
                     id="return"
                     placeholder={placeholders.return}
-                    className={styles.inputSplitRight}
+                    className={cn(
+                      styles.inputSplitRight,
+                      hasError &&
+                        "border-destructive z-10 focus-visible:ring-0 focus-visible:border-destructive",
+                    )}
                     startIcon={Calendar}
                     aria-invalid={returnState.invalid}
                   />

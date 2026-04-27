@@ -6,7 +6,7 @@ const { terms: passengerTerms } = UI_TEXT.hero.inputs.passengers;
 export const CATEGORIES = [
   {
     id: "adults",
-    label: passengerTerms.adult_singular,
+    label: passengerTerms.adult_plural,
     sub: passengerTerms.years16,
   },
   {
