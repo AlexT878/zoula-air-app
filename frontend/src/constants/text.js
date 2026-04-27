@@ -55,11 +55,28 @@ export const UI_TEXT = {
     },
   },
 
+  auth: {
+    login: {
+      emailLabel: "Email",
+      emailPlaceholder: "name@example.com",
+      passwordLabel: "Password",
+      passwordPlaceholder: "••••••••",
+      forgotPassword: "Forgot password?",
+      signInBtn: "Sign In",
+      cancelBtn: "Cancel",
+      noAccount: "Don't have an account?",
+      signUpBtn: "Sign Up for Free",
+    },
+  },
+
   modal: {
     got_it: "Got it",
     infant: {
       title: "Infant Seating Policy",
       text: "Infants (under 2 years) must be at least 14 days old and sit on an adult's lap. They will be automatically assigned to the first adult on the booking.",
+    },
+    signIn: {
+      subtitle: "Welcome back! Please enter your details.",
     },
   },
 
