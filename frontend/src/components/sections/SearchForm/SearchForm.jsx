@@ -20,7 +20,7 @@ export default function SearchForm() {
       arrival: "",
       departureDate: "",
       returnDate: "",
-      passengers: "",
+      passengers: "1 Adult",
     },
   });
   const { hero } = UI_TEXT;
@@ -78,7 +78,6 @@ export default function SearchForm() {
             <PassengerPicker
               control={form.control}
               label={hero.inputs.passengers.label}
-              placeholder={hero.inputs.passengers.placeholder}
             />
           </FieldGroup>
 

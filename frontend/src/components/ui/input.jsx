@@ -5,7 +5,7 @@ function Input({ className, type, startIcon: Icon, ...props }) {
   return (
     <div className="relative w-full">
       {Icon && (
-        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-20" />
       )}
       <input
         type={type}

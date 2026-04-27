@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 
-const baseInput = "h-12 border-gray-300/80 placeholder:text-muted-foreground";
+const baseInput =
+  "h-12 border-gray-300/80 placeholder:text-muted-foreground transition-all duration-200";
 const focusStyles =
   "focus-visible:ring-0 focus-visible:border-gray-400/80 focus-visible:z-10";
 
 export const styles = {
-  card: "w-full max-w-6xl shadow-2xl border-none rounded-3xl bg-white/95 backdrop-blur-md",
+  card: "w-full max-w-6xl shadow-2xl border-none rounded-3xl bg-background/95 backdrop-blur-md",
   header: "pb-4 pt-4 px-8",
   content: "px-8 pb-8",
 
@@ -18,21 +19,19 @@ export const styles = {
 
   label: "text-xs uppercase font-bold text-slate-500 ml-1",
 
-  inputDefault: cn(baseInput, focusStyles, "rounded-md"),
+  inputDefault: cn(baseInput, focusStyles, "bg-background rounded-md"),
   inputSplitLeft: cn(
     baseInput,
     focusStyles,
-    "rounded-r-none border-r-0",
-    "relative",
-    "[clip-path:inset(-20px_0px_-20px_-20px)]",
+    "bg-white rounded-md rounded-r-none relative shadow-none",
+    "aria-invalid:ring-0",
   ),
 
   inputSplitRight: cn(
     baseInput,
     focusStyles,
-    "rounded-l-none",
-    "relative",
-    "[clip-path:inset(-20px_-20px_-20px_0px)]",
+    "bg-white rounded-md rounded-l-none relative shadow-none",
+    "aria-invalid:ring-0",
   ),
 
   submitBtn: "w-full h-14 px-24 text-lg font-bold shadow-lg shadow-primary/30",

@@ -3,6 +3,7 @@ import { Field, FieldLabel, FieldError } from "../../ui/field";
 import { Input } from "../../ui/input";
 import { Calendar } from "lucide-react";
 import { styles } from "./SearchForm.styles";
+import { cn } from "@/lib/utils";
 
 export default function DatePickerInput({ control, label, placeholders }) {
   return (
@@ -10,34 +11,49 @@ export default function DatePickerInput({ control, label, placeholders }) {
       name="departureDate"
       control={control}
       render={({ field, fieldState }) => (
-        <Field className="lg:col-span-2" data-invalid={fieldState.invalid}>
-          <FieldLabel className={styles.label}>{label}</FieldLabel>
-          <div className="flex">
-            <Input
-              {...field}
-              id="departure"
-              placeholder={placeholders.departure}
-              className={styles.inputSplitLeft}
-              startIcon={Calendar}
-              aria-invalid={fieldState.invalid}
-            />
-            <Controller
-              name="returnDate"
-              control={control}
-              render={({ field: returnField, fieldState: returnState }) => (
-                <Input
-                  {...returnField}
-                  id="return"
-                  placeholder={placeholders.return}
-                  className={styles.inputSplitRight}
-                  startIcon={Calendar}
-                  aria-invalid={returnState.invalid}
-                />
-              )}
-            />
-          </div>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
+        <Controller
+          name="returnDate"
+          control={control}
+          render={({ field: returnField, fieldState: returnState }) => {
+            const hasError = fieldState.invalid || returnState.invalid;
+
+            return (
+              <Field className="lg:col-span-2" data-invalid={hasError}>
+                <FieldLabel className={styles.label}>{label}</FieldLabel>
+
+                <div
+                  className={cn(
+                    "flex -space-x-px rounded-md",
+                    hasError && "ring-3 ring-destructive/20",
+                  )}
+                >
+                  <Input
+                    {...field}
+                    id="departure"
+                    placeholder={placeholders.departure}
+                    className={styles.inputSplitLeft}
+                    startIcon={Calendar}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <Input
+                    {...returnField}
+                    id="return"
+                    placeholder={placeholders.return}
+                    className={styles.inputSplitRight}
+                    startIcon={Calendar}
+                    aria-invalid={returnState.invalid}
+                  />
+                </div>
+
+                {fieldState.invalid ? (
+                  <FieldError errors={[fieldState.error]} />
+                ) : returnState.invalid ? (
+                  <FieldError errors={[returnState.error]} />
+                ) : null}
+              </Field>
+            );
+          }}
+        />
       )}
     />
   );
