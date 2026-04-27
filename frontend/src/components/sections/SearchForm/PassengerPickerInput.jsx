@@ -140,7 +140,7 @@ export default function PassengerPicker({ control, label }) {
                           size="icon"
                           className="h-8 w-8 rounded-full"
                           onClick={() => updateCount(cat.id, 1, field.onChange)}
-                          disabled={totalPassengers >= 25}
+                          disabled={totalPassengers >= MAX_PASSENGERS}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -149,7 +149,7 @@ export default function PassengerPicker({ control, label }) {
                   ))}
                 </div>
 
-                {totalPassengers >= 3 && (
+                {totalPassengers >= MAX_PASSENGERS && (
                   <div className="mt-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-black">
                     <Info className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                     <p className="leading-relaxed">

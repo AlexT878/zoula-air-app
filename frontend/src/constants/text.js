@@ -59,7 +59,7 @@ export const UI_TEXT = {
     got_it: "Got it",
     infant: {
       title: "Infant Seating Policy",
-      text: "Infants (under 2 years) must sit on an adult’s lap. The infant will automatically be linked to the first adult (aged 18+) on the booking.",
+      text: "Infants (under 2 years) must be at least 14 days old and sit on an adult's lap. They will be automatically assigned to the first adult on the booking.",
     },
   },
 

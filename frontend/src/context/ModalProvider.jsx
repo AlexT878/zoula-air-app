@@ -36,7 +36,7 @@ export const ModalProvider = ({ children }) => {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={closeModal} />
+          <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
 
           <div
             className="relative w-full max-w-sm bg-white rounded-xl shadow-xl p-6"
