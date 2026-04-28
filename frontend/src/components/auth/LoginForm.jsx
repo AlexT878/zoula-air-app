@@ -12,6 +12,7 @@ import { loginUser } from "@/services/authService";
 
 export function LoginForm({ onCancel }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState();
   const { login: loginText } = UI_TEXT.auth;
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
@@ -23,13 +24,18 @@ export function LoginForm({ onCancel }) {
   });
 
   const handleLogin = async (data) => {
-    console.log(data.email);
-
     try {
-      const userData = loginUser(data.email, data.password);
-      console.log(userData);
+      const userData = await loginUser(data.email, data.password);
+      if (userData) {
+        console.log(userData);
+        onCancel();
+      }
     } catch (error) {
-      console.log(error.message);
+      if (error.status === 500) {
+        setAuthError(loginText.server_error);
+      } else {
+        setAuthError(loginText.invalid_login);
+      }
     }
   };
 
@@ -100,6 +106,13 @@ export function LoginForm({ onCancel }) {
           {loginText.forgotPassword}
         </button>
 
+        {/* 3. Auth Error */}
+        {authError && (
+          <div className="bg-destructive/10 p-3 rounded-md border border-destructive/20 text-center">
+            <p className="text-destructive text-sm font-medium">{authError}</p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 pt-2">
           <Button className={`${STYLES.btnBase} text-base hover:opacity-90`}>
@@ -123,7 +136,7 @@ export function LoginForm({ onCancel }) {
         </p>
         <Button
           variant="outline"
-          type="submit"
+          type="button"
           className={`${STYLES.btnBase} border-input bg-background hover:bg-accent hover:text-accent-foreground`}
         >
           {loginText.signUpBtn}

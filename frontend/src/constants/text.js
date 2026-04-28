@@ -66,6 +66,8 @@ export const UI_TEXT = {
       cancelBtn: "Cancel",
       noAccount: "Don't have an account?",
       signUpBtn: "Sign Up for Free",
+      invalid_login: "Invalid email or password. Please try again.",
+      server_error: "Something went wrong. Please try again later.",
     },
   },
 

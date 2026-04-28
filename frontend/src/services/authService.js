@@ -14,14 +14,20 @@ export async function loginUser(email, password) {
       body: payload.toString(),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail);
-    }
+    const data = await response.json();
 
-    const result = await response.json();
-    console.log(result);
+    if (!response.ok) {
+      const error = new Error(data.detail);
+      console.log(response.status);
+      error.status = response.status;
+      throw error;
+    }
+    return data;
   } catch (error) {
     console.log(error.message);
+    if (!error.status) {
+      error.status = 500;
+    }
+    throw error;
   }
 }
