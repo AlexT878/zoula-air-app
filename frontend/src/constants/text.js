@@ -89,5 +89,7 @@ export const UI_TEXT = {
     max_arrival_city: "Arrival location must be at most 32 characters.",
     no_date: "Select a date.",
     no_passangers: "Required.",
+    invalid_email: "Please enter a valid email address.",
+    password_min_length: "Password must be at least 8 characters.",
   },
 };
