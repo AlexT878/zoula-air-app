@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
@@ -52,7 +52,9 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(
-    db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
+    response: Response,
+    db: Session = Depends(get_db),
+    form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
     user = db.query(UserModel).filter(UserModel.email == form_data.username).first()
 
@@ -74,9 +76,18 @@ async def login_for_access_token(
     )
     refresh_token = create_refresh_token(subject=str(user.id))
 
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,  # 86400 = 1 day in seconds
+        path="/",
+    )
+
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token,
         "token_type": "bearer",
     }
 
