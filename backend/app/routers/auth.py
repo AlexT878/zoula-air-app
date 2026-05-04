@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status, Body
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
@@ -38,8 +38,14 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
 
     new_user = UserModel(
         email=user_in.email,
+        first_name=user_in.first_name,
+        last_name=user_in.last_name,
+        birth_date=user_in.birth_date,
+        gender=user_in.gender,
+        country=user_in.country,
+        phone_country_code=user_in.phone_country_code,
+        phone_number=user_in.phone_number,
         hashed_password=hashed_password,
-        full_name=user_in.full_name,
         is_active=True,
         roles=["user"],
     )
@@ -94,8 +100,14 @@ async def login_for_access_token(
 
 @router.post("/refresh", response_model=Token)
 async def refresh_access_token(
-    refresh_token: str = Body(..., embed=True), db: Session = Depends(get_db)
+    refresh_token: str | None = Cookie(None),
+    db: Session = Depends(get_db),
 ) -> Any:
+    if not refresh_token:
+        raise HTTPException(
+            status_code=401, detail="Refresh token missing from cookies"
+        )
+
     try:
         payload = decode_token(refresh_token)
         if payload.get("token_type") != "refresh":
@@ -110,9 +122,9 @@ async def refresh_access_token(
             )
 
         access_token = create_access_token(subject=str(user.id), roles=user.roles)
+
         return {
             "access_token": access_token,
-            "refresh_token": refresh_token,
             "token_type": "bearer",
         }
     except (JWTError, ValidationError):
