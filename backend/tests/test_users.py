@@ -1,6 +1,25 @@
+from datetime import datetime
+
 import pytest
+from app.constants.enums import Gender
+from app.core.config import settings
 from app.models.users import User as UserModel
 from app.auth.utils import get_password_hash
+
+
+def get_valid_user_payload(email="test@zoula.air", password="ComplexPassword123!"):
+    return {
+        "email": email,
+        "password": password,
+        "first_name": "Test",
+        "last_name": "Pilot",
+        "birth_date": "1990-01-01",
+        "gender": "male",
+        "country": "Romania",
+        "phone_country_code": "+40",
+        "phone_number": "722123456",
+    }
+
 
 # ==========================================
 #              USERS: /me
@@ -9,11 +28,7 @@ from app.auth.utils import get_password_hash
 
 @pytest.mark.asyncio
 async def test_read_users_me_success(client):
-    user_payload = {
-        "email": "me@zoula.air",
-        "password": "ComplexPassword123!",
-        "full_name": "Test Pilot",
-    }
+    user_payload = get_valid_user_payload()
     await client.post("/auth/register", json=user_payload)
 
     login_res = await client.post(
@@ -27,7 +42,7 @@ async def test_read_users_me_success(client):
 
     assert res.status_code == 200
     assert res.json()["email"] == user_payload["email"]
-    assert res.json()["full_name"] == user_payload["full_name"]
+    assert res.json()["first_name"] == user_payload["first_name"]
 
 
 @pytest.mark.asyncio
@@ -38,23 +53,20 @@ async def test_read_users_me_unauthorized(client):
 
 @pytest.mark.asyncio
 async def test_read_users_me_not_found(client, db_session):
-    user_email = "ghost@zoula.air"
-    user_pass = "Boo12345!"
+    user_payload = get_valid_user_payload(email="ghost@zoula.air")
+    user_email = user_payload["email"]
+    user_pass = user_payload["password"]
 
-    await client.post(
-        "/auth/register",
-        json={"email": user_email, "password": user_pass, "full_name": "Ghost"},
-    )
+    await client.post("/auth/register", json=user_payload)
+
     login_res = await client.post(
         "/auth/login", data={"username": user_email, "password": user_pass}
     )
     token = login_res.json()["access_token"]
 
-    # Delete user
     db_session.query(UserModel).filter(UserModel.email == user_email).delete()
     db_session.commit()
 
-    # Trying to access /me with a token that is technically still valid as a signature
     headers = {"Authorization": f"Bearer {token}"}
     res = await client.get("/users/me", headers=headers)
 
@@ -70,12 +82,18 @@ async def test_read_users_me_not_found(client, db_session):
 @pytest.mark.asyncio
 async def test_read_all_users_as_admin(client, db_session):
     admin_email = "admin@zoula.air"
-    admin_pass = "AdminPassword123!"
+    admin_pass = settings.ADMIN_PASSWORD
 
     admin_user = UserModel(
         email=admin_email,
-        full_name="System Admin",
+        first_name="Zoula",
+        last_name="Admin",
         hashed_password=get_password_hash(admin_pass),
+        birth_date=datetime(1990, 1, 1).date(),
+        gender=Gender.OTHER,
+        country="N/A",
+        phone_country_code="+0",
+        phone_number="000000000",
         roles=["admin"],
         is_active=True,
     )
@@ -97,21 +115,12 @@ async def test_read_all_users_as_admin(client, db_session):
 
 @pytest.mark.asyncio
 async def test_read_all_users_forbidden_for_regular_user(client, db_session):
-    user_email = "pilot@zoula.air"
-    user_pass = "PilotPassword123!"
-
-    regular_user = UserModel(
-        email=user_email,
-        full_name="Regular Pilot",
-        hashed_password=get_password_hash(user_pass),
-        roles=["user"],
-        is_active=True,
-    )
-    db_session.add(regular_user)
-    db_session.commit()
+    user_payload = get_valid_user_payload()
+    await client.post("/auth/register", json=user_payload)
 
     login_res = await client.post(
-        "/auth/login", data={"username": user_email, "password": user_pass}
+        "/auth/login",
+        data={"username": user_payload["email"], "password": user_payload["password"]},
     )
     token = login_res.json()["access_token"]
 
