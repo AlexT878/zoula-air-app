@@ -5,6 +5,13 @@ from typing import List
 from app.constants.enums import Gender
 from app.core.errors import ErrorCode
 import re
+from app.schemas.token import Token
+
+
+class UserResponse(Token):
+    id: int
+    first_name: str
+    roles: List[str]
 
 
 class UserBase(BaseModel):
