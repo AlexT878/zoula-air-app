@@ -8,10 +8,16 @@ import re
 from app.schemas.token import Token
 
 
-class UserResponse(Token):
+class UserMinimal(BaseModel):
     id: int
     first_name: str
     roles: List[str]
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserMinimal
 
 
 class UserBase(BaseModel):

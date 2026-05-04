@@ -4,14 +4,13 @@ from typing import Any
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from jose import jwt, JWTError
+from jose import JWTError
 from pydantic import ValidationError
 
 from app.auth.jwt_handler import create_access_token, create_refresh_token, decode_token
 from app.auth.utils import verify_password, get_password_hash
 from app.core.config import settings
-from app.schemas.token import Token
-from app.schemas.user import UserCreate, User as UserSchema, UserResponse
+from app.schemas.user import LoginResponse, UserCreate, User as UserSchema
 from app.models.users import User as UserModel
 from app.db.session import get_db
 
@@ -56,7 +55,7 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.post("/login", response_model=UserResponse)
+@router.post("/login", response_model=LoginResponse)
 async def login_for_access_token(
     response: Response,
     db: Session = Depends(get_db),
@@ -93,15 +92,17 @@ async def login_for_access_token(
     )
 
     return {
-        "id": user.id,
-        "first_name": user.first_name,
-        "roles": user.roles,
         "access_token": access_token,
         "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "first_name": user.first_name,
+            "roles": user.roles,
+        },
     }
 
 
-@router.post("/refresh", response_model=UserResponse)
+@router.post("/refresh", response_model=LoginResponse)
 async def refresh_access_token(
     refresh_token: str | None = Cookie(None),
     db: Session = Depends(get_db),
@@ -127,11 +128,13 @@ async def refresh_access_token(
         access_token = create_access_token(subject=str(user.id), roles=user.roles)
 
         return {
-            "id": user.id,
-            "first_name": user.first_name,
-            "roles": user.roles,
             "access_token": access_token,
             "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "first_name": user.first_name,
+                "roles": user.roles,
+            },
         }
     except (JWTError, ValidationError):
         raise HTTPException(status_code=403, detail=ErrorCode.TOKEN_INVALID_CREDENTIALS)
