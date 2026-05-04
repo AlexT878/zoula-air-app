@@ -1,5 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+import { useAuthStore } from "../store/useAuthStore";
+
 export async function loginUser(email, password) {
   const payload = new URLSearchParams();
   payload.append("username", email);
@@ -23,6 +25,9 @@ export async function loginUser(email, password) {
       error.status = response.status;
       throw error;
     }
+
+    useAuthStore.getState().setAuth(data.user, data.access_token);
+
     return data;
   } catch (error) {
     console.log(error.message);
