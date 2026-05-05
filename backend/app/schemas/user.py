@@ -20,6 +20,11 @@ class LoginResponse(BaseModel):
     user: UserMinimal
 
 
+class LogoutResponse(BaseModel):
+    status: str
+    message: str
+
+
 class UserBase(BaseModel):
     email: EmailStr
     is_active: bool = True

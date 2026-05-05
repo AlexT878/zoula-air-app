@@ -1,3 +1,4 @@
+import asyncio
 from datetime import timedelta
 from typing import Any
 
@@ -7,10 +8,16 @@ from sqlalchemy.orm import Session
 from jose import JWTError
 from pydantic import ValidationError
 
+from app.auth.jwt_bearer import get_current_user
 from app.auth.jwt_handler import create_access_token, create_refresh_token, decode_token
 from app.auth.utils import verify_password, get_password_hash
 from app.core.config import settings
-from app.schemas.user import LoginResponse, UserCreate, User as UserSchema
+from app.schemas.user import (
+    LoginResponse,
+    LogoutResponse,
+    UserCreate,
+    User as UserSchema,
+)
 from app.models.users import User as UserModel
 from app.db.session import get_db
 
@@ -102,6 +109,25 @@ async def login_for_access_token(
     }
 
 
+@router.post("/logout", response_model=LogoutResponse)
+async def logout_user(
+    response: Response, current_user_id: str = Depends(get_current_user)
+) -> Any:
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        path="/",
+    )
+
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return {"status": "success", "message": "Logged out successfully"}
+
+
 @router.post("/refresh", response_model=LoginResponse)
 async def refresh_access_token(
     refresh_token: str | None = Cookie(None),
@@ -127,6 +153,7 @@ async def refresh_access_token(
 
         access_token = create_access_token(subject=str(user.id), roles=user.roles)
 
+        await asyncio.sleep(2)  # DELETE THIS
         return {
             "access_token": access_token,
             "token_type": "bearer",
