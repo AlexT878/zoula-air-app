@@ -228,3 +228,25 @@ async def test_refresh_token_malformed(client):
 
     assert res.status_code == 403
     assert "Could not validate credentials" in res.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_logout_invalidates_redis_token(client):
+    user_payload = get_valid_user_payload()
+    await client.post("/auth/register", json=user_payload)
+    login_data = {
+        "username": user_payload["email"],
+        "password": user_payload["password"],
+    }
+
+    login_res = await client.post("/auth/login", data=login_data)
+    assert login_res.status_code == 200
+
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    logout_res = await client.post("/auth/logout", headers=headers)
+    assert logout_res.status_code == 200
+
+    refresh_res = await client.post("/auth/refresh")
+    assert refresh_res.status_code == 401

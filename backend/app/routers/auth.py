@@ -12,6 +12,7 @@ from app.auth.jwt_bearer import get_current_user
 from app.auth.jwt_handler import create_access_token, create_refresh_token, decode_token
 from app.auth.utils import verify_password, get_password_hash
 from app.core.config import settings
+from app.redis.service import RedisService, get_redis_service
 from app.schemas.user import (
     LoginResponse,
     LogoutResponse,
@@ -66,6 +67,7 @@ async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
 async def login_for_access_token(
     response: Response,
     db: Session = Depends(get_db),
+    redis: RedisService = Depends(get_redis_service),
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
     user = db.query(UserModel).filter(UserModel.email == form_data.username).first()
@@ -87,6 +89,12 @@ async def login_for_access_token(
         expires_delta=access_token_expires,
     )
     refresh_token = create_refresh_token(subject=str(user.id))
+
+    redis.save_refresh_token(
+        user_id=str(user.id),
+        token=refresh_token,
+        expire_days=settings.REFRESH_TOKEN_EXPIRE_DAYS,
+    )
 
     response.set_cookie(
         key="refresh_token",
@@ -111,7 +119,9 @@ async def login_for_access_token(
 
 @router.post("/logout", response_model=LogoutResponse)
 async def logout_user(
-    response: Response, current_user_id: str = Depends(get_current_user)
+    response: Response,
+    current_user_id: str = Depends(get_current_user),
+    redis: RedisService = Depends(get_redis_service),
 ) -> Any:
     response.delete_cookie(
         key="refresh_token",
@@ -120,6 +130,8 @@ async def logout_user(
         secure=False,
         path="/",
     )
+
+    redis.delete_refresh_token(str(current_user_id))
 
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
@@ -132,6 +144,7 @@ async def logout_user(
 async def refresh_access_token(
     refresh_token: str | None = Cookie(None),
     db: Session = Depends(get_db),
+    redis: RedisService = Depends(get_redis_service),
 ) -> Any:
     if not refresh_token:
         raise HTTPException(
@@ -150,6 +163,14 @@ async def refresh_access_token(
             raise HTTPException(
                 status_code=401, detail=ErrorCode.USER_NOT_FOUND_INACTIVE_MESSAGE
             )
+
+        stored_refresh_token = redis.get_refresh_token(user_id)
+        if stored_refresh_token is None:
+            raise HTTPException(
+                status_code=401, detail="Session expired. Please log in again."
+            )
+        if stored_refresh_token != refresh_token:
+            raise HTTPException(status_code=401, detail="The token is no longer valid.")
 
         access_token = create_access_token(subject=str(user.id), roles=user.roles)
 

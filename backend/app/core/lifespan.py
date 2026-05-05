@@ -5,6 +5,7 @@ from sqlalchemy import text
 from app.db.session import SessionLocal
 from app.db.base import Base
 from app.db.session import engine
+from app.redis.client import redis_client
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -23,6 +24,14 @@ async def lifespan(app: FastAPI):
         logger.error(f"❌ Postgres: Connection failed: {e}")
     finally:
         db.close()
+
+    try:
+        if redis_client.ping():
+            logger.info("✅ Redis: Connected successfully!")
+    except Exception as e:
+        logger.error(f"❌ Redis: Connection failed: {e}")
+    finally:
+        pass
 
     yield
 

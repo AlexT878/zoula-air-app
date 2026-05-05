@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     ADMIN_PASSWORD: str
+    REDIS_HOST: str
+    REDIS_PASSWORD: str
+    REDIS_PORT: str
 
     model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
 

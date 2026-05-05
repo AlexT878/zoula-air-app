@@ -33,6 +33,7 @@ post
 .codspeed
 
 postgres_data
+redis-data
 .env
 
 # Logs

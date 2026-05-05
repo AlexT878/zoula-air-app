@@ -10,3 +10,13 @@ services:
       POSTGRES_DB: zoula_db
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: redis_auth
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    restart: unless-stopped
+    volumes:
+      - ././redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
