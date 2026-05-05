@@ -2,9 +2,22 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Home from "./pages/Home";
 import { ModalProvider } from "./context/ModalProvider";
-import TestMe from "./pages/TestMe";
+import { useEffect } from "react";
+import { useAuthStore } from "./store/useAuthStore";
+import { refreshAccessToken } from "./services/apiClient";
 
 function App() {
+  useEffect(() => {
+    const initAuth = async () => {
+      const wasLoggedIn = localStorage.getItem("was_logged_in") === "true";
+      if (wasLoggedIn) {
+        await refreshAccessToken();
+      }
+      useAuthStore.getState().finishInitialization();
+    };
+    initAuth();
+  }, []);
+
   return (
     <ModalProvider>
       <Routes>

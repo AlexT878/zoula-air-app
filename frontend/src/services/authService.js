@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 import { useAuthStore } from "../store/useAuthStore";
+import { apiFetch } from "./apiClient";
 
 export async function loginUser(email, password) {
   const payload = new URLSearchParams();
@@ -27,6 +28,7 @@ export async function loginUser(email, password) {
     }
 
     useAuthStore.getState().setAuth(data.user, data.access_token);
+    localStorage.setItem("was_logged_in", "true");
 
     return data;
   } catch (error) {
@@ -35,5 +37,25 @@ export async function loginUser(email, password) {
       error.status = 500;
     }
     throw error;
+  }
+}
+
+export async function logoutUser() {
+  useAuthStore.setState({ isInitializing: true });
+
+  try {
+    const response = await apiFetch("/auth/logout", {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      console.warn("Logout error");
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    localStorage.setItem("was_logged_in", "false");
+    useAuthStore.getState().logout();
+    window.location.href = "/";
   }
 }

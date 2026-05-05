@@ -12,27 +12,19 @@ export async function refreshAccessToken() {
     if (!response.ok) throw new Error("Refresh failed");
 
     const data = await response.json();
-
     useAuthStore.getState().setAuth(data.user, data.access_token);
-
+    localStorage.setItem("was_logged_in", "true");
     return data.access_token;
   } catch (error) {
     console.log(error);
+    localStorage.removeItem("was_logged_in");
     useAuthStore.getState().logout();
     return null;
   }
 }
 
 export async function apiFetch(endpoint, options = {}) {
-  let token = useAuthStore.getState().accessToken;
-
-  if (
-    !token &&
-    !endpoint.includes("/auth/login") &&
-    !endpoint.includes("/auth/refresh")
-  ) {
-    token = await refreshAccessToken();
-  }
+  const token = useAuthStore.getState().accessToken;
 
   const sendRequest = async (currentToken) => {
     const defaultHeaders = {
@@ -52,7 +44,11 @@ export async function apiFetch(endpoint, options = {}) {
 
   let response = await sendRequest(token);
 
-  if (response.status === 401 && !endpoint.includes("/auth/login")) {
+  if (
+    response.status === 401 &&
+    !endpoint.includes("/auth/login") &&
+    !endpoint.includes("/auth/refresh")
+  ) {
     const newToken = await refreshAccessToken();
     if (newToken) {
       response = await sendRequest(newToken);
@@ -60,4 +56,20 @@ export async function apiFetch(endpoint, options = {}) {
   }
 
   return response;
+}
+
+export async function logoutUser() {
+  useAuthStore.setState({ isInitializing: true });
+
+  try {
+    await apiFetch("/auth/logout", {
+      method: "POST",
+    });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    localStorage.removeItem("was_logged_in");
+    useAuthStore.getState().logout();
+    window.location.href = "/";
+  }
 }
